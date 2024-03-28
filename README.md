@@ -1,2 +1,2 @@
-# Arrow-JVM-Template
-A template project for Arrow on JVM. It defines an application and a couple small examples
+# Mongodb-kt-utils
+Convenience helpers for writing idiomatic kotlin working with Mongodb
