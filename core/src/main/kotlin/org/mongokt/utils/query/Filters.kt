@@ -132,18 +132,7 @@ infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.lte(value: TItem): Bson =
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/in \$in]]
  */
-infix fun <TItem> QueryPath<*, TItem>.`in`(value: String): Bson = Filters.`in`(path, value)
-
-/**
- * Creates a filter that matches all documents where the value of a field equals any value in the list of specified values.
- *
- * @param values    the list of values
- * @tparam TItem   the value type
- * @return the filter
- * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/in \$in]]
- */
-@JvmName("inArray")
-infix fun <@OnlyInputTypes TItem> QueryPath<*, Iterable<TItem?>>.`in`(values: Iterable<TItem?>): Bson =
+infix fun <@OnlyInputTypes TItem>  QueryPath<*, TItem?>.`in`(values: Iterable<TItem?>): Bson =
   Filters.`in`(path, values)
 
 /**
@@ -154,19 +143,7 @@ infix fun <@OnlyInputTypes TItem> QueryPath<*, Iterable<TItem?>>.`in`(values: It
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/nin \$nin]]
  */
-infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.nin(values: Iterable<TItem?>): Bson = Filters.nin(path, values)
-
-/**
- * Creates a filter that matches all documents where the value of a field does not equal any of the specified values or does not exist.
- *
- * @param values    the list of values
- * @tparam TItem   the value type
- * @return the filter
- * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/nin \$nin]]
- */
-@JvmName("ninArray")
-infix fun <@OnlyInputTypes TItem> QueryPath<*, Iterable<TItem?>>.nin(values: Iterable<TItem?>): Bson =
-  Filters.nin(path, values)
+infix fun <@OnlyInputTypes TItem>   QueryPath<*, TItem?>.nin(values: Iterable<TItem?>): Bson = Filters.nin(path, values)
 
 /**
  * Creates a filter that performs a logical AND of the provided list of filters.  Note that this will only generate a "\$and"
@@ -298,7 +275,8 @@ infix fun <TItem> QueryPath<*, TItem>.type(type: BsonType): Bson = Filters.type(
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/mod \$mod]]
  */
-fun <TItem> QueryPath<*, TItem>.mod(divisor: Long, remainder: Long): Bson = Filters.mod(path, divisor, remainder)
+fun <TItem: Number?>  QueryPath<*, TItem>.mod(divisor: Long, remainder: Long): Bson =
+  Filters.mod(path, divisor, remainder)
 
 /**
  * Creates a filter that matches all documents where the value of the field matches the given regular expression pattern.
@@ -320,6 +298,17 @@ infix fun QueryPath<*, String?>.regex(regex: Pattern): Bson = Filters.regex(path
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/regex \$regex]]
  */
 infix fun QueryPath<*, String?>.regex(regex: String): Bson = Filters.regex(path, regex)
+
+/**
+ * Creates a filter that matches all documents where the value of the field matches the given regular expression pattern.
+ *
+ * @param regex   the regex
+ * @return the filter
+ * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/regex \$regex]]
+ * @since 1.0
+ */
+fun QueryPath<*, String?>.regex(regex: String, options: String): Bson =
+  Filters.regex(path, regex, options)
 
 /**
  * Creates a filter that matches all documents where the value of the field matches the given regular expression pattern.
@@ -438,7 +427,7 @@ infix fun <TItem> QueryPath<*, Iterable<TItem>?>.elemMatch(filter: Bson): Bson =
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/size \$size]]
  */
-infix fun <TItem> QueryPath<*, TItem>.size(size: Int): Bson = Filters.size(path, size)
+infix fun <TItem> QueryPath<*, Iterable<TItem>?>.size(size: Int): Bson = Filters.size(path, size)
 
 /**
  * Creates a filter that matches all documents where all of the bit positions are clear in the field.

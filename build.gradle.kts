@@ -12,6 +12,9 @@ allprojects {
       jvmTarget = "17"
     }
   }
+  tasks.withType<Test> {
+    useJUnitPlatform()
+  }
 }
 plugins {
   alias(libs.plugins.kotlin.jvm) apply false

@@ -8,6 +8,7 @@ dependencies {
   implementation(projects.core)
   implementation(projects.ksp)
   implementation(libs.mongo.driver)
+  testImplementation(libs.bson.kotlin)
   testImplementation(libs.bundles.kotest)
   ksp(projects.ksp)
 }
