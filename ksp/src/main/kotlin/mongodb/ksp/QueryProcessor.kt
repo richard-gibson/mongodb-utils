@@ -8,9 +8,11 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 
 class QueryProcessor(
-  val codeGenerator: CodeGenerator, val logger: KSPLogger
+  val codeGenerator: CodeGenerator,
+  val logger: KSPLogger,
 ) : SymbolProcessor {
   val annotationName = "org.mongokt.utils.annotations.query"
+
   override fun process(resolver: Resolver): List<KSAnnotated> {
     resolver.getSymbolsWithAnnotation(annotationName).filterIsInstance<KSClassDeclaration>().forEach(::processClass)
     return emptyList()
@@ -20,5 +22,4 @@ class QueryProcessor(
     klass.validate(logger, annotationName)
     klass.genQueryPaths(codeGenerator, evalAnnotatedClass(klass, annotationName, logger))
   }
-
 }

@@ -12,15 +12,14 @@ import mongodb.ksp.Errors.invalidClassType
 internal fun evalAnnotatedClass(
   klass: KSClassDeclaration,
   annotationName: String,
-  logger: KSPLogger
-): List<Pair<KSType, String>> {
-  return if (klass.isDataClass() || klass.isValue()) {
+  logger: KSPLogger,
+): List<Pair<KSType, String>> =
+  if (klass.isDataClass() || klass.isValue()) {
     klass.getConstructorParams()
   } else {
     logger.error(klass.invalidClassType(annotationName), klass)
     emptyList()
   }
-}
 
 internal fun KSClassDeclaration.getConstructorParams(): List<Pair<KSType, String>> =
   primaryConstructor?.parameters?.mapNotNull(KSValueParameter::paramInfo).orEmpty()
@@ -28,30 +27,34 @@ internal fun KSClassDeclaration.getConstructorParams(): List<Pair<KSType, String
 internal fun KSValueParameter.paramInfo(): Pair<KSType, String>? =
   name?.asString()?.let { type.resolve() to it }
 
-internal fun KSType.qualifiedString(prefix: String = ""): String = when (declaration) {
-  is KSTypeParameter -> {
-    val n = declaration.simpleName.asSanitizedString(prefix = prefix)
-    if (isMarkedNullable) "$n?" else n
-  }
-
-  else -> when (val qname = declaration.qualifiedName?.asSanitizedString(prefix = prefix)) {
-    null -> toString()
-    else -> {
-      val withArgs = when {
-        arguments.isEmpty() -> qname
-        else -> "$qname<${arguments.joinToString(separator = ", ") { it.qualifiedString() }}>"
-      }
-      if (isMarkedNullable) "$withArgs?" else withArgs
+internal fun KSType.qualifiedString(prefix: String = ""): String =
+  when (declaration) {
+    is KSTypeParameter -> {
+      val n = declaration.simpleName.asSanitizedString(prefix = prefix)
+      if (isMarkedNullable) "$n?" else n
     }
-  }
-}
 
-
-internal fun KSTypeArgument.qualifiedString(): String = when (val ty = type?.resolve()) {
-  null -> toString()
-  else -> when (variance) {
-    Variance.STAR -> "*"
-    Variance.INVARIANT -> ty.qualifiedString()
-    else -> ty.qualifiedString(prefix = "${variance.label} ")
+    else ->
+      when (val qname = declaration.qualifiedName?.asSanitizedString(prefix = prefix)) {
+        null -> toString()
+        else -> {
+          val withArgs =
+            when {
+              arguments.isEmpty() -> qname
+              else -> "$qname<${arguments.joinToString(separator = ", ") { it.qualifiedString() }}>"
+            }
+          if (isMarkedNullable) "$withArgs?" else withArgs
+        }
+      }
   }
-}
+
+internal fun KSTypeArgument.qualifiedString(): String =
+  when (val ty = type?.resolve()) {
+    null -> toString()
+    else ->
+      when (variance) {
+        Variance.STAR -> "*"
+        Variance.INVARIANT -> ty.qualifiedString()
+        else -> ty.qualifiedString(prefix = "${variance.label} ")
+      }
+  }

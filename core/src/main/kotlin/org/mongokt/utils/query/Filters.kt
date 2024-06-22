@@ -1,6 +1,5 @@
 package org.mongokt.utils.query
 
-import kotlin.internal.OnlyInputTypes
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.TextSearchOptions
 import com.mongodb.client.model.geojson.Geometry
@@ -10,10 +9,11 @@ import org.bson.BsonType
 import org.bson.Document
 import org.bson.conversions.Bson
 import java.util.regex.Pattern
-
+import kotlin.internal.OnlyInputTypes
 
 internal fun Iterable<Bson?>.filterNullOrEmpty(): List<Bson> =
-  this.filterNotNull()
+  this
+    .filterNotNull()
     .filterNot { it is Document && it.isEmpty() || it is BsonDocument && it.isEmpty() }
 
 /**
@@ -26,7 +26,6 @@ internal fun Iterable<Bson?>.filterNullOrEmpty(): List<Bson> =
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/eq \$eq]]
  */
 infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.eq(value: TItem?): Bson = Filters.eq(path, value)
-
 
 /**
  * Creates a filter that matches all documents where the value of the field name equals the specified value. Note that this doesn't
@@ -50,7 +49,6 @@ infix fun <@OnlyInputTypes TItem> QueryPath<*, Iterable<TItem?>?>.contains(value
  * @note Requires MongoDB 3.6 or greater
  */
 fun <TExpression> expr(expression: TExpression): Bson = Filters.expr(expression)
-
 
 /**
  * Creates a filter that matches all documents that validate against the given JSON schema document.
@@ -132,7 +130,7 @@ infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.lte(value: TItem): Bson =
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/in \$in]]
  */
-infix fun <@OnlyInputTypes TItem>  QueryPath<*, TItem?>.`in`(values: Iterable<TItem?>): Bson =
+infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.`in`(values: Iterable<TItem?>): Bson =
   Filters.`in`(path, values)
 
 /**
@@ -143,7 +141,7 @@ infix fun <@OnlyInputTypes TItem>  QueryPath<*, TItem?>.`in`(values: Iterable<TI
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/nin \$nin]]
  */
-infix fun <@OnlyInputTypes TItem>   QueryPath<*, TItem?>.nin(values: Iterable<TItem?>): Bson = Filters.nin(path, values)
+infix fun <@OnlyInputTypes TItem> QueryPath<*, TItem?>.nin(values: Iterable<TItem?>): Bson = Filters.nin(path, values)
 
 /**
  * Creates a filter that performs a logical AND of the provided list of filters.  Note that this will only generate a "\$and"
@@ -265,7 +263,6 @@ infix fun <TItem> QueryPath<*, TItem>.exists(exists: Boolean): Bson = Filters.ex
  */
 infix fun <TItem> QueryPath<*, TItem>.type(type: BsonType): Bson = Filters.type(path, type)
 
-
 /**
  * Creates a filter that matches all documents where the value of a field divided by a divisor has the specified remainder (i.e. perform
  * a modulo operation to select documents).
@@ -275,7 +272,10 @@ infix fun <TItem> QueryPath<*, TItem>.type(type: BsonType): Bson = Filters.type(
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/mod \$mod]]
  */
-fun <TItem: Number?>  QueryPath<*, TItem>.mod(divisor: Long, remainder: Long): Bson =
+fun <TItem : Number?> QueryPath<*, TItem>.mod(
+  divisor: Long,
+  remainder: Long,
+): Bson =
   Filters.mod(path, divisor, remainder)
 
 /**
@@ -286,7 +286,6 @@ fun <TItem: Number?>  QueryPath<*, TItem>.mod(divisor: Long, remainder: Long): B
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/regex \$regex]]
  */
 infix fun QueryPath<*, String?>.regex(regex: Pattern): Bson = Filters.regex(path, regex)
-
 
 /**
  * Creates a filter that matches all documents where the value of the field matches the given regular expression pattern with the given
@@ -307,7 +306,10 @@ infix fun QueryPath<*, String?>.regex(regex: String): Bson = Filters.regex(path,
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/regex \$regex]]
  * @since 1.0
  */
-fun QueryPath<*, String?>.regex(regex: String, options: String): Bson =
+fun QueryPath<*, String?>.regex(
+  regex: String,
+  options: String,
+): Bson =
   Filters.regex(path, regex, options)
 
 /**
@@ -350,7 +352,10 @@ infix fun QueryPath<*, Iterable<String?>>.regex(regex: Pattern): Bson = Filters.
  * @mongodb.driver.manual reference/operator/query/regex $regex
  */
 @JvmName("regexIterable")
-fun QueryPath<*, Iterable<String?>>.regex(pattern: String, options: String): Bson =
+fun QueryPath<*, Iterable<String?>>.regex(
+  pattern: String,
+  options: String,
+): Bson =
   Filters.regex(path, pattern, options)
 
 /**
@@ -376,7 +381,10 @@ infix fun QueryPath<*, Iterable<String?>>.regex(regex: Regex): Bson = Filters.re
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/text \$text]]
  * @since 1.1
  */
-fun text(search: String, textSearchOptions: TextSearchOptions = TextSearchOptions()): Bson =
+fun text(
+  search: String,
+  textSearchOptions: TextSearchOptions = TextSearchOptions(),
+): Bson =
   Filters.text(search, textSearchOptions)
 
 /**
@@ -418,7 +426,6 @@ fun <@OnlyInputTypes TItem> QueryPath<*, Iterable<TItem>?>.all(vararg values: TI
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/elemMatch \$elemMatch]]
  */
 infix fun <TItem> QueryPath<*, Iterable<TItem>?>.elemMatch(filter: Bson): Bson = Filters.elemMatch(path, filter)
-
 
 /**
  * Creates a filter that matches all documents where the value of a field is an array of the specified size.
@@ -507,7 +514,7 @@ fun <TItem> QueryPath<*, TItem>.geoWithinBox(
   lowerLeftX: Double,
   lowerLeftY: Double,
   upperRightX: Double,
-  upperRightY: Double
+  upperRightY: Double,
 ): Bson =
   Filters.geoWithinBox(path, lowerLeftX, lowerLeftY, upperRightX, upperRightY)
 
@@ -534,7 +541,11 @@ fun <TItem> QueryPath<*, TItem>.geoWithinPolygon(points: List<List<Double>>): Bs
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/geoWithin/ \$geoWithin]]
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/center/#op._S_center \$center]]
  */
-fun <TItem> QueryPath<*, TItem>.geoWithinCenter(x: Double, y: Double, radius: Double): Bson =
+fun <TItem> QueryPath<*, TItem>.geoWithinCenter(
+  x: Double,
+  y: Double,
+  radius: Double,
+): Bson =
   Filters.geoWithinCenter(path, x, y, radius)
 
 /**
@@ -548,7 +559,11 @@ fun <TItem> QueryPath<*, TItem>.geoWithinCenter(x: Double, y: Double, radius: Do
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/geoWithin/ \$geoWithin]]
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/centerSphere/#op._S_centerSphere \$centerSphere]]
  */
-fun <TItem> QueryPath<*, TItem>.geoWithinCenterSphere(x: Double, y: Double, radius: Double): Bson =
+fun <TItem> QueryPath<*, TItem>.geoWithinCenterSphere(
+  x: Double,
+  y: Double,
+  radius: Double,
+): Bson =
   Filters.geoWithinCenterSphere(path, x, y, radius)
 
 /**
@@ -559,7 +574,6 @@ fun <TItem> QueryPath<*, TItem>.geoWithinCenterSphere(x: Double, y: Double, radi
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/geoIntersects/ \$geoIntersects]]
  */
 infix fun <TItem> QueryPath<*, TItem>.geoIntersects(geometry: Geometry): Bson = Filters.geoIntersects(path, geometry)
-
 
 /**
  * Creates a filter that matches all documents containing a field with geospatial data that intersects with the specified shape.
@@ -577,7 +591,11 @@ infix fun <TItem> QueryPath<*, TItem>.geoIntersects(geometry: Bson): Bson = Filt
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/near/ \$near]]
  */
-fun <TItem> QueryPath<*, TItem>.near(geometry: Point, maxDistance: Double? = null, minDistance: Double? = null): Bson =
+fun <TItem> QueryPath<*, TItem>.near(
+  geometry: Point,
+  maxDistance: Double? = null,
+  minDistance: Double? = null,
+): Bson =
   Filters.near(path, geometry, maxDistance, minDistance)
 
 /**
@@ -587,9 +605,12 @@ fun <TItem> QueryPath<*, TItem>.near(geometry: Point, maxDistance: Double? = nul
  * @return the filter
  * @see [[https://www.mongodb.com/docs/manual/reference/operator/query/near/ \$near]]
  */
-fun <TItem> QueryPath<*, TItem>.near(geometry: Bson, maxDistance: Double? = null, minDistance: Double? = null): Bson =
+fun <TItem> QueryPath<*, TItem>.near(
+  geometry: Bson,
+  maxDistance: Double? = null,
+  minDistance: Double? = null,
+): Bson =
   Filters.near(path, geometry, maxDistance, minDistance)
-
 
 /**
  * Creates a filter that matches all documents containing a field with geospatial data that is near the specified point.
@@ -603,7 +624,7 @@ fun <TItem> QueryPath<*, TItem>.near(
   x: Double,
   y: Double,
   maxDistance: Double? = null,
-  minDistance: Double? = null
+  minDistance: Double? = null,
 ): Bson =
   Filters.near(path, x, y, maxDistance, minDistance)
 
@@ -618,7 +639,7 @@ fun <TItem> QueryPath<*, TItem>.near(
 fun <TItem> QueryPath<*, TItem>.nearSphere(
   geometry: Bson,
   maxDistance: Double? = null,
-  minDistance: Double? = null
+  minDistance: Double? = null,
 ): Bson =
   Filters.nearSphere(path, geometry, maxDistance, minDistance)
 
@@ -633,7 +654,7 @@ fun <TItem> QueryPath<*, TItem>.nearSphere(
 fun <TItem> QueryPath<*, TItem>.nearSphere(
   geometry: Point,
   maxDistance: Double? = null,
-  minDistance: Double? = null
+  minDistance: Double? = null,
 ): Bson =
   Filters.nearSphere(path, geometry, maxDistance, minDistance)
 
@@ -650,6 +671,6 @@ fun <TItem> QueryPath<*, TItem>.nearSphere(
   x: Double,
   y: Double,
   maxDistance: Double? = null,
-  minDistance: Double? = null
+  minDistance: Double? = null,
 ): Bson =
   Filters.nearSphere(path, x, y, maxDistance, minDistance)
